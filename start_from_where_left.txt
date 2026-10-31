@@ -1,0 +1,2 @@
+cd "$HOME\OneDrive\Desktop\gen_ai"
+.\env\Scripts\Activate.ps1
