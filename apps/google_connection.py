@@ -19,6 +19,8 @@ from langchain_ollama import ChatOllama
 from langchain.agents import create_agent
 from langchain_core.tools import tool
 from langchain_community.utilities import GoogleSerperAPIWrapper
+from langgraph.checkpoint.memory import InMemorySaver
+
 
 # 3. Load environment variables
 load_dotenv()
@@ -47,6 +49,7 @@ def google_search(query: str) -> str:
 agent = create_agent(
     model=llm,
     tools=[google_search],
+    checkpointer=InMemorySaver(),
     system_prompt="""
     You are a helpful AI search agent.
 
@@ -60,18 +63,19 @@ agent = create_agent(
 
 # 9. Run Agent
 if __name__ == "__main__":
+    while True:
+        
+        question = input("ASK QUESTION -> ")
+        if question.lower()=="quit":
+            print("BYE 👋")
+            break
+        print(f"Question: {question}")
+        print("Thinking and searching...")
 
-    question = "Who won the ICC Women's World Cup 2025 in cricket?"
-
-    print(f"Question: {question}")
-    print("Thinking and searching...")
-
-    response = agent.invoke({
-        "messages": [
-            {"role": "user", "content": question}
-        ]
-    })
-
-    # 10. Print Final Answer
-    print("\nFinal Answer:")
-    print(response["messages"][-1].content)
+        response = agent.invoke(
+            {"messages": [{"role": "user", "content": question}]},
+            config={"configurable": {"thread_id": "1"}},
+        )
+        # 10. Print Final Answer
+        print("\nFinal Answer:")
+        print("AI -> ", response["messages"][-1].content)
